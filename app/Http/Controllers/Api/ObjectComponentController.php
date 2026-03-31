@@ -20,7 +20,7 @@ class ObjectComponentController extends Controller
         ]);
 
         /* Fetch objects for a given zone + system type with LATEST status */
-        $objects = ObjectComponent::with(['latestStatus', 'ports.connectedToObject'])
+        $objects = ObjectComponent::with(['latestStatus.user', 'ports.connectedToObject', 'finishStatus.user', 'approveStatus.user'])
             ->where('zone_id', $request->zone_id)
             ->where('system_type', $request->system_type)
             ->get();
@@ -31,7 +31,7 @@ class ObjectComponentController extends Controller
     public function all(Request $request)
     {
         /* Fetch ALL objects across the system for listing/reporting tables */
-        $objects = ObjectComponent::with(['latestStatus', 'ports.connectedToObject', 'zone.floor.building', 'user'])
+        $objects = ObjectComponent::with(['latestStatus.user', 'ports.connectedToObject', 'zone.floor.building', 'user', 'finishStatus.user', 'approveStatus.user'])
             ->orderBy('id', 'desc')
             ->get();
 

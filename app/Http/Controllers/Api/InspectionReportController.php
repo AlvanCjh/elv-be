@@ -37,10 +37,15 @@ class InspectionReportController extends Controller
         
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'rfwi_ref_no' => 'nullable|string|max:255',
+            'location' => 'nullable|string|max:255',
+            'gridline_zone' => 'nullable|string|max:255',
+            'date_inspected' => 'nullable|date',
+            'consultant_comments' => 'nullable|string',
             'description' => 'nullable|string',
             'assigned_to_user_id' => 'required|exists:users,id',
             'inspection_date' => 'required|date',
-            'status' => 'required|in:pending,completed,failed',
+            'status' => 'required|in:pending,approve,approve with comment,rejected,standby,completed,failed',
             'file' => 'required|file|mimes:pdf|max:10240', // Max 10MB
         ]);
 
@@ -54,6 +59,11 @@ class InspectionReportController extends Controller
             'assigned_to_user_id' => $validated['assigned_to_user_id'],
             'created_by_user_id' => Auth::id(),
             'title' => $validated['title'],
+            'rfwi_ref_no' => $validated['rfwi_ref_no'] ?? null,
+            'location' => $validated['location'] ?? null,
+            'gridline_zone' => $validated['gridline_zone'] ?? null,
+            'date_inspected' => $validated['date_inspected'] ?? null,
+            'consultant_comments' => $validated['consultant_comments'] ?? null,
             'description' => $validated['description'],
             'file_path' => $filePath,
             'status' => $validated['status'],
@@ -72,10 +82,15 @@ class InspectionReportController extends Controller
     {
         $validated = $request->validate([
             'title' => 'string|max:255',
+            'rfwi_ref_no' => 'nullable|string|max:255',
+            'location' => 'nullable|string|max:255',
+            'gridline_zone' => 'nullable|string|max:255',
+            'date_inspected' => 'nullable|date',
+            'consultant_comments' => 'nullable|string',
             'description' => 'nullable|string',
             'assigned_to_user_id' => 'exists:users,id',
             'inspection_date' => 'date',
-            'status' => 'in:pending,completed,failed',
+            'status' => 'in:pending,approve,approve with comment,rejected,standby,completed,failed',
             'file' => 'nullable|file|mimes:pdf|max:10240',
         ]);
 

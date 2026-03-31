@@ -24,7 +24,7 @@ class AttendanceController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'user_id' => 'required|string',
+            'user_id' => 'required', // Allow either numeric string or UUID string
             'project_id' => 'required|integer',
             'date' => 'required|date',
             'status' => 'required|string',

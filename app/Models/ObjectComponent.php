@@ -69,4 +69,14 @@ class ObjectComponent extends Model
     {
         return $this->hasMany(ObjectPort::class , 'object_component_id');
     }
+
+    public function finishStatus()
+    {
+        return $this->hasOne(ObjectStatus::class, 'object_id')->where('current_status', 'Finish')->latest();
+    }
+
+    public function approveStatus()
+    {
+        return $this->hasOne(ObjectStatus::class, 'object_id')->where('current_status', 'Approved')->latest();
+    }
 }

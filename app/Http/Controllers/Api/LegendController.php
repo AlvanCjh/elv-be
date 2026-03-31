@@ -39,14 +39,18 @@ class LegendController extends Controller
         ]);
 
         $legend = Legend::create($request->only(['system_type', 'name', 'shape_type', 'icon_svg', 'style']));
+        
+        $projectId = app('active_project_id');
 
         if ($request->has('floor_ids') && !empty($request->floor_ids)) {
             $legend->floors()->sync($request->floor_ids);
         } else {
-            // If no floor_ids specified, it might mean "shared" or global. 
-            // Depending on how frontend expects it, we might want to attach all existing floors or just leave it empty.
-            // User said: "assigned to all floors". I'll attach all floors of the CURRENT project? 
-            // Wait, Legend is not project-scoped in schema? Oh, floors are part of a building, and buildings are in a project.
+            // Assign to ALL floors in the current project
+            $allFloorIds = \App\Models\Floor::whereHas('building', function ($q) use ($projectId) {
+                $q->where('project_id', $projectId);
+            })->pluck('id');
+            
+            $legend->floors()->sync($allFloorIds);
         }
 
         return response()->json($legend->load('floors'));

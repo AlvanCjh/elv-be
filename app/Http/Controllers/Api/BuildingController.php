@@ -22,7 +22,7 @@ class BuildingController extends Controller
 
     public function showFloor($id)
     {
-        return response()->json(Floor::with(['zones.objectComponents.latestStatus'])->findOrFail($id));
+        return response()->json(Floor::with(['zones.objectComponents.latestStatus.user', 'zones.objectComponents.finishStatus.user', 'zones.objectComponents.approveStatus.user'])->findOrFail($id));
     }
 
     public function uploadFloorImage(Request $request, $id)

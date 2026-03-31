@@ -9,6 +9,11 @@ use Illuminate\Http\Request;
 
 class ZoneController extends Controller
 {
+    public function index($floor_id)
+    {
+        return response()->json(Zone::where('floor_id', $floor_id)->get());
+    }
+
     /**
      * Store a newly created zone in storage.
      */
@@ -37,6 +42,16 @@ class ZoneController extends Controller
             'message' => 'Zone created successfully',
             'zone' => $zone,
         ], 201);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $zone = Zone::findOrFail($id);
+        $zone->update($request->all());
+        return response()->json([
+            'message' => 'Zone updated successfully',
+            'zone' => $zone
+        ]);
     }
 
     /**

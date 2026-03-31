@@ -51,8 +51,9 @@ class BoqController extends Controller
             'legends.unit',
             'legends.unit_cost',
             DB::raw('COUNT(object_components.id) as total_qty'),
-            DB::raw("CAST(SUM(CASE WHEN latest_status.current_status = 'Completed' THEN 1 ELSE 0 END) AS INTEGER) as completed_qty"),
-            DB::raw("CAST(SUM(CASE WHEN latest_status.current_status != 'Completed' OR latest_status.current_status IS NULL THEN 1 ELSE 0 END) AS INTEGER) as pending_qty"),
+            DB::raw("CAST(SUM(CASE WHEN latest_status.current_status IN ('Completed', 'Approved') THEN 1 ELSE 0 END) AS INTEGER) as completed_qty"),
+            DB::raw("CAST(SUM(CASE WHEN latest_status.current_status = 'Finish' THEN 1 ELSE 0 END) AS INTEGER) as finished_qty"),
+            DB::raw("CAST(SUM(CASE WHEN latest_status.current_status NOT IN ('Completed', 'Approved', 'Finish') OR latest_status.current_status IS NULL THEN 1 ELSE 0 END) AS INTEGER) as pending_qty"),
             DB::raw('COUNT(object_components.id) * legends.unit_cost as total_cost'),
             DB::raw("STRING_AGG(object_components.item_alias_id, ', ') as alias_ids")
         )
