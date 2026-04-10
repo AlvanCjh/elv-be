@@ -16,6 +16,8 @@ return new class extends Migration {
             $table->string('alias_id')->nullable();
             $table->string('name');
             $table->string('area')->nullable();
+            $table->string('category')->nullable();
+            $table->json('coordinates')->nullable();
             $table->text('location_desc')->nullable();
             $table->timestamps();
         });

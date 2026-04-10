@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cable_ports', function (Blueprint $table) {
+        Schema::create('cable_topology_tables', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('annotation_id')->constrained('floor_annotations')->onDelete('cascade');
-            $table->integer('port_number');
-            $table->string('status')->default('active');
-            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cable_ports');
+        Schema::dropIfExists('cable_topology_tables');
     }
 };

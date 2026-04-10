@@ -1,0 +1,12 @@
+<IfModule mod_rewrite.c>
+    # Disable directory browsing
+    Options -MultiViews -Indexes
+
+    RewriteEngine On
+
+    # Prevent loop redirect when accessing the public folder directly
+    RewriteCond %{REQUEST_URI} !^/ELV/public/
+
+    # Silently forward all requests into the public folder
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
