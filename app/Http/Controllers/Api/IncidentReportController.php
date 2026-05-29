@@ -13,7 +13,7 @@ class IncidentReportController extends Controller
 {
     public function index(Request $request)
     {
-        $query = IncidentReport::with('photos');
+        $query = IncidentReport::with('photos', 'linkedServiceReport');
         if ($request->has('project_id')) {
             $query->where('project_id', $request->project_id);
         }
@@ -44,6 +44,7 @@ class IncidentReportController extends Controller
             'verified_by' => 'nullable|string',
             'verified_designation' => 'nullable|string',
             'verified_date' => 'nullable|date',
+            'linked_service_report_id' => 'nullable|exists:service_reports,id',
             'photos' => 'nullable|array',
             'photos.*' => 'image|max:10240', // 10MB per photo
         ]);
@@ -66,13 +67,13 @@ class IncidentReportController extends Controller
                 }
             }
 
-            return response()->json($incident->load('photos'), 201);
+            return response()->json($incident->load('photos', 'linkedServiceReport'), 201);
         });
     }
 
     public function show($id)
     {
-        return response()->json(IncidentReport::with('photos')->findOrFail($id));
+        return response()->json(IncidentReport::with('photos', 'linkedServiceReport')->findOrFail($id));
     }
 
     public function update(Request $request, $id)
@@ -99,6 +100,7 @@ class IncidentReportController extends Controller
             'verified_by' => 'nullable|string',
             'verified_designation' => 'nullable|string',
             'verified_date' => 'nullable|date',
+            'linked_service_report_id' => 'nullable|exists:service_reports,id',
             'photos' => 'nullable|array',
             'photos.*' => 'image|max:10240',
         ]);
@@ -116,7 +118,7 @@ class IncidentReportController extends Controller
                 }
             }
 
-            return response()->json($incident->load('photos'));
+            return response()->json($incident->load('photos', 'linkedServiceReport'));
         });
     }
 

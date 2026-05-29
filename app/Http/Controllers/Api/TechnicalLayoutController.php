@@ -9,6 +9,7 @@ use App\Models\TechnicalLayoutZoneObject;
 use App\Models\TechnicalLayoutZoneAnnotation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class TechnicalLayoutController extends Controller
 {
@@ -32,12 +33,12 @@ class TechnicalLayoutController extends Controller
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('assets/layouts'), $filename);
+            $path = $file->storeAs('layouts', $filename, 'public');
             
             $layout = TechnicalLayout::create([
                 'project_id' => $request->project_id,
                 'name' => $request->name,
-                'image_path' => '/assets/layouts/' . $filename,
+                'image_path' => asset('storage/' . $path),
             ]);
 
             return response()->json($layout->load(['zones.objects', 'zones.annotations']), 201);
@@ -60,14 +61,19 @@ class TechnicalLayoutController extends Controller
 
         if ($request->hasFile('image')) {
             // Delete old file
-            if ($layout->image_path && File::exists(public_path($layout->image_path))) {
-                File::delete(public_path($layout->image_path));
+            if ($layout->image_path) {
+                if (str_contains($layout->image_path, 'storage/')) {
+                    $oldPath = str_replace(asset('storage/'), '', $layout->image_path);
+                    Storage::disk('public')->delete($oldPath);
+                } else if (File::exists(public_path($layout->image_path))) {
+                    File::delete(public_path($layout->image_path));
+                }
             }
 
             $file = $request->file('image');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('assets/layouts'), $filename);
-            $layout->image_path = '/assets/layouts/' . $filename;
+            $path = $file->storeAs('layouts', $filename, 'public');
+            $layout->image_path = asset('storage/' . $path);
         }
 
         $layout->save();
@@ -123,9 +129,13 @@ class TechnicalLayoutController extends Controller
         $layout = TechnicalLayout::findOrFail($id);
         
         // Delete image file
-        $filePath = public_path($layout->image_path);
-        if (File::exists($filePath)) {
-            File::delete($filePath);
+        if ($layout->image_path) {
+            if (str_contains($layout->image_path, 'storage/')) {
+                $oldPath = str_replace(asset('storage/'), '', $layout->image_path);
+                Storage::disk('public')->delete($oldPath);
+            } else if (File::exists(public_path($layout->image_path))) {
+                File::delete(public_path($layout->image_path));
+            }
         }
 
         $layout->delete();
@@ -166,8 +176,8 @@ class TechnicalLayoutController extends Controller
         if ($request->hasFile('photo')) {
             $file = $request->file('photo');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('assets/layouts/annotations'), $filename);
-            $data['photo_path'] = '/assets/layouts/annotations/' . $filename;
+            $path = $file->storeAs('layouts/annotations', $filename, 'public');
+            $data['photo_path'] = asset('storage/' . $path);
         }
 
         $annotation = $zone->annotations()->create($data);
@@ -177,8 +187,13 @@ class TechnicalLayoutController extends Controller
     public function deleteZoneAnnotation($id)
     {
         $annotation = TechnicalLayoutZoneAnnotation::findOrFail($id);
-        if ($annotation->photo_path && File::exists(public_path($annotation->photo_path))) {
-            File::delete(public_path($annotation->photo_path));
+        if ($annotation->photo_path) {
+            if (str_contains($annotation->photo_path, 'storage/')) {
+                $oldPath = str_replace(asset('storage/'), '', $annotation->photo_path);
+                Storage::disk('public')->delete($oldPath);
+            } else if (File::exists(public_path($annotation->photo_path))) {
+                File::delete(public_path($annotation->photo_path));
+            }
         }
         $annotation->delete();
         return response()->json(['message' => 'Annotation deleted']);

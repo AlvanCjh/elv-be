@@ -12,7 +12,7 @@ class IncidentReport extends Model
         'incident_location', 'finding_date', 'incident_scenario',
         'incident_description', 'specifications', 'inability', 'impact',
         'operation', 'recommendations', 'replacement_capability', 'remarks',
-        'verified_by', 'verified_designation', 'verified_date'
+        'verified_by', 'verified_designation', 'verified_date', 'linked_service_report_id'
     ];
 
     protected $casts = [
@@ -30,5 +30,10 @@ class IncidentReport extends Model
     public function photos()
     {
         return $this->morphMany(ReportPhoto::class, 'reportable');
+    }
+
+    public function linkedServiceReport()
+    {
+        return $this->belongsTo(ServiceReport::class, 'linked_service_report_id');
     }
 }

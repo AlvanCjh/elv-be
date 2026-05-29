@@ -73,7 +73,7 @@ class BoqCsvController extends Controller
         $item = BoqCsvItem::findOrFail($id);
 
         // Ensure user owns this upload (optional security check)
-        if ($item->upload->user_id !== $request->user()->id && !$request->user()->hasRole('supervisor')) {
+        if ($item->upload->user_id !== $request->user()->id && $request->user()->role !== 'supervisor') {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 

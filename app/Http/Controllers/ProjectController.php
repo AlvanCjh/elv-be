@@ -34,6 +34,7 @@ class ProjectController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:projects',
             'description' => 'nullable|string',
+            'type' => 'nullable|in:ssdc,construction',
             'building.name' => 'nullable|string|max:255',
             'building.total_floor' => 'nullable|integer|min:1',
             'building.latitude' => 'nullable|string',
@@ -43,6 +44,7 @@ class ProjectController extends Controller
         $project = Project::create([
             'name' => $validated['name'],
             'description' => $validated['description'] ?? null,
+            'type' => $validated['type'] ?? 'construction',
         ]);
 
         $building = null;
@@ -76,11 +78,45 @@ class ProjectController extends Controller
         $project = Project::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:projects,name,' . $project->id,
+            'name' => 'sometimes|required|string|max:255|unique:projects,name,' . $project->id,
             'description' => 'nullable|string',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+            'actual_start_date' => 'nullable|date',
+            'actual_end_date' => 'nullable|date',
+            'edit_reason' => 'nullable|string',
         ]);
 
+        $dateChanged = false;
+        $desc = [];
+        $dateFields = [
+            'start_date' => 'Project Start',
+            'end_date' => 'Project End',
+            'actual_start_date' => 'Project Actual Start',
+            'actual_end_date' => 'Project Actual End'
+        ];
+
+        foreach ($dateFields as $field => $label) {
+            if (isset($validated[$field]) && $validated[$field] != $project->{$field}) {
+                $dateChanged = true;
+                $oldVal = $project->{$field} ? date('Y-m-d', strtotime($project->{$field})) : 'N/A';
+                $newVal = $validated[$field] ? date('Y-m-d', strtotime($validated[$field])) : 'N/A';
+                $desc[] = "$label changed from $oldVal to $newVal";
+            }
+        }
+
         $project->update($validated);
+
+        if ($dateChanged) {
+            \App\Models\TimelineHistory::create([
+                'project_id' => $project->id,
+                'timeline_task_id' => null,
+                'user_id' => $request->user()->id ?? 1,
+                'entity_name' => 'Main Project Bounds',
+                'change_details' => implode(", ", $desc),
+                'reason' => $validated['edit_reason'] ?? 'Updated global project bounds',
+            ]);
+        }
 
         return response()->json([
             'message' => 'Project updated successfully',

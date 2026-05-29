@@ -31,7 +31,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|unique:users,email',
             'password' => ['required', 'string', Password::defaults()],
-            'role' => 'required|in:member,supervisor,facilitator',
+            'role' => 'required|in:member,supervisor,facilitator,elv,ict,ssdc,business,businesses,superadmin,admin,business_admin,business_higher_admin',
         ]);
 
         $user = User::create([
@@ -59,6 +59,9 @@ class UserController extends Controller
         }
 
         if ($request->has('role')) {
+            $request->validate([
+                'role' => 'in:member,supervisor,facilitator,elv,ict,ssdc,business,businesses,superadmin,admin,business_admin,business_higher_admin'
+            ]);
             $user->role = $request->role;
         }
 
