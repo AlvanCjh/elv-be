@@ -9,16 +9,18 @@ use Illuminate\Http\JsonResponse;
 
 class MasterListController extends Controller
 {
-    private const VALID_CATEGORIES = ['status', 'type', 'agencyTypes', 'company', 'customer', 'supplier', 'project_document_title', 'quotationVersion'];
+    private const VALID_CATEGORIES = ['status', 'type', 'agencyTypes', 'company', 'customer', 'supplier', 'project_document_title', 'quotationVersion', 'deliveryOrder'];
 
     /** GET /master-list  — returns all items grouped by category */
     public function index(): JsonResponse
     {
         $items = MasterListItem::orderBy('sort_order')->orderBy('id')->get();
 
-        $grouped = collect(self::VALID_CATEGORIES)->mapWithKeys(fn($cat) => [
-            $cat => $items->where('category', $cat)->values(),
-        ]);
+        $grouped = collect(self::VALID_CATEGORIES)->mapWithKeys(function($cat) use ($items) {
+            return [
+                $cat => $items->where('category', $cat)->values(),
+            ];
+        });
 
         return response()->json($grouped);
     }
@@ -159,6 +161,7 @@ class MasterListController extends Controller
                 ['label' => '02 - Revised Pricing', 'color' => '#22c55e', 'text_color' => '#fff'],
                 ['label' => '03 - Final Negotiations', 'color' => '#ef4444', 'text_color' => '#fff'],
             ],
+            'deliveryOrder' => [],
         ];
     }
 }
